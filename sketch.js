@@ -1,4 +1,3 @@
-
 const Engine = Matter.Engine;
 const World = Matter.World;
 const Bodies = Matter.Bodies;
@@ -12,13 +11,22 @@ var tower, cannon;
 var angle = 50;
 
 var balls = [];
-
 var boats = [];
 
+//animação do barco navegando
+var boatAnimation = []
+var boatSpriteSheet, boatSpriteData
+var brokenBoatAnimation=[]
+var brokenBoatSpriteSheet
+var brokenBoatSpriteData
 
 function preload() {
   bg = loadImage("./assets/background.gif");
-}
+  boatSpriteSheet = loadImage("./assets/boat/boat.png")
+  boatSpriteData = loadJSON("./assets/boat/boat.json")
+  brokenBoatSpriteSheet=loadimage("./assets/boat/broken_boat.png")
+  brokenBoatSpriteData=loadJSON("./assets/boat/broken_boat.png")
+} 
 
 function setup() {
   //convertendo o angulo de radiano para graus
@@ -32,6 +40,23 @@ function setup() {
   ground = new Ground(0, height - 1, width * 2, 1);
   cannon = new Cannon(180, 110, 110, 70, angle);
   //cannonBall = new CannonBall(cannon.x,cannon.y)
+
+
+  //criando as animações
+  var boatFrames = boatSpriteData.frames
+  for( var i = 0; i < boatFrames.length; i++){
+    var pos = boatFrames[i].position
+    var img = boatSpriteSheet.get(pos.x, pos.y, pos.w, pos.h)
+    boatAnimation.push(img)
+  }
+  // criando animação do barco quebrado :D
+
+  var brokenboatFrames=brokenBoatSpriteData.frames
+  for (var i=0; i<brokenboatFrames.length;i++){
+    var pos=brokenboatFrames[i].position
+    var img=brokenBoatSpriteSheet.get(pos.x,pos.y,pos.w,pos.h)
+    brokenBoatAnimation.push(img)
+  }
 }
 
 function draw() {
@@ -41,7 +66,7 @@ function draw() {
 
   tower.display();
   ground.display();
-  showBoats()
+  showBoats();
 
   //cannonBall.display()
 
@@ -81,28 +106,31 @@ function showCannonBalls(ball, index) {
     balls.splice(index, 1);
   }
 }
+
 function showBoats() {
   if (boats.length > 0) {
     if (
       boats.length < 4 &&
       boats[boats.length - 1].body.position.x < width - 300
     ) {
-      var positions = [-130, -100, -120, -80];
+      var positions = [-20, -60, -70, -80];
       var position = random(positions);
-      var boat = new Boat(width, height - 100, 200, 200, position);
+      var boat = new Boat(width, height - 100, 200, 200, position, boatAnimation);
       boats.push(boat);
     }
 
     for (var i = 0; i < boats.length; i++) {
       Matter.Body.setVelocity(boats[i].body, {
         x: -0.9,
-        y: 0
+        y: 0,
       });
 
+      
       boats[i].display();
+      boats[i].animate()
     }
   } else {
-    var boat = new Boat(width, height - 100, 200, 200, -100);
+    var boat = new Boat(width, height - 100, 200, 200, -20, boatAnimation);
     boats.push(boat);
   }
 }
